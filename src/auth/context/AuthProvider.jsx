@@ -1,46 +1,54 @@
-import { AuthContext } from "./AuthContex";
-import { useReducer } from 'react'
+import { useReducer } from 'react';
+import { AuthContext } from './AuthContex';
+import { authReducer } from './authReducer';
+import { types } from '../types/types';
 
-import { authReducer } from './authReducer'
-import { types } from "../types/types";
+// const initialState = {
+//     logged: false,
 
-// Definimos el estado inicial, que indica que el usuario no está autenticado
-// cuando entramos a la aplicacion no estamos registrados
-// (logged: false).
-const initialState = {
-    logged: false,
+// };
+
+const init = () => {
+    const user = JSON.parse( localStorage.getItem('user')) ;
+
+    return {
+        logged: !!user,
+        user: user,
+    }
 }
 
-// El 'AuthProvider' es como un contenedor que permite compartir la información
-// sobre la autenticación del usuario con todos los componentes dentro de él.
 export const AuthProvider = ({ children }) => {
 
-    // Aquí usamos 'useReducer' para manejar el estado de autenticación.
-    // 'authState' es la información actual sobre la autenticación.
-    // 'dispatch' es la función que usamos para cambiar el estado (por ejemplo, 
-    // para iniciar o cerrar sesión).
-    const [ authState, dispatch ] = useReducer( authReducer, initialState);
+    const [ authState, dispatch] = useReducer( authReducer, {}, init);
 
-    const login = ( name = '') => {
-        const action = {
-            type: types.login,
-            payload: {
-                id: 'ABC',
-                user: name
-            }
-        }
+    
 
-        dispatch(action)
+    const login = (name = '') => {
+
+        const user = { id: 'ABC', name }
+
+        const action = {type: types.login,  payload: user};
+
+        localStorage.setItem('user', JSON.stringify( user ) ) ;
+
+
+        dispatch(action);
+    };
+
+    const logout = () => {
+        localStorage.removeItem('user');
+            const action = { type: types.logout};
+            dispatch(action);
+        
     }
 
     return (
-        // 'AuthContext.Provider' envuelve a todos los componentes hijos 
-        //({ children }).
-        // Proporcionamos el estado de autenticación (authState) y la función 
-        // 'dispatch' para que
-        // cualquier componente dentro de este contenedor pueda acceder a ellos.
-        <AuthContext.Provider value={{ ...authState, login: login }}>
-            { children }
+        <AuthContext.Provider value={{ 
+            ...authState, 
+            login: login,
+            logout:logout
+             }}>
+            {children}
         </AuthContext.Provider>
-    )
-}
+    );
+};
