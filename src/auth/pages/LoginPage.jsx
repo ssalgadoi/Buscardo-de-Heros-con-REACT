@@ -13,11 +13,13 @@ export const LoginPage = () => {
   // Función que se ejecuta cuando el usuario hace clic en el botón de login
   const onLogin = () => {
 
+    const lastPath = localStorage.getItem('lastPath') || '/';
+
     // Llamamos a la función 'login' con el nombre de usuario
     login('ChiPystola');
     
     // Navegamos a la ruta principal después de iniciar sesión, reemplazando la historia
-    navigate('/', {
+    navigate( lastPath, {
       replace: true
     });
   }
